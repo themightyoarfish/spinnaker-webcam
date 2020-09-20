@@ -8,3 +8,10 @@
 3. `mkdir build && cd build && cmake .. && make` to build the binary.
 4. Run `./build/spinnaker-webcam [serial] [device]`, where device defaults to
    `/dev/video0`
+
+## Limitations
+
+0. Camera cannot  be  shutdown correctly because the functions don't return. Probably
+   just the usual Spinnaker bugs wich won't reproduce anywhere else
+1. Only works in Chrome. Firefox fails with some error about starting video. This may be
+   because it doesn't support 24 bit packed rgb image format, who knows.

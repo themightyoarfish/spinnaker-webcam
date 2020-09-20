@@ -17,7 +17,7 @@ static Spinnaker::CameraPtr camera = nullptr;
 static Spinnaker::CameraList camList;
 static Spinnaker::ImagePtr currentFrame = nullptr;
 
-static bool stop = false;
+static volatile bool stop = false;
 
 void shutdown_camera(int signal) {
   stop = true;
@@ -42,7 +42,6 @@ void shutdown_camera(int signal) {
   std::cout << "Clear camera list" << std::endl;
   camList.Clear();
   std::cout << "Release system" << std::endl;
-  camList.Clear();
   spinnaker_system->ReleaseInstance();
   spinnaker_system = nullptr;
 }
@@ -205,7 +204,8 @@ static int init_webcam(const std::string &device_name, int width, int height,
 }
 
 int main(int argc, char *argv[]) {
-  std::signal(SIGINT, shutdown_camera);
+  // EndAcquisition() blocks indefinitely, so can't shut down (used to work)
+  /* std::signal(SIGINT, shutdown_camera); */
 
   constexpr int width = 1280;
   constexpr int height = 1024;
@@ -286,8 +286,10 @@ int main(int argc, char *argv[]) {
             init_webcam(device_name, currentFrame->GetWidth(),
                         currentFrame->GetHeight(), currentFrame->GetStride());
       }
+      std::cout << "Sending image ... ";
       int bytes_written = write(device_fd, currentFrame->GetData(),
                                 currentFrame->GetBufferSize());
+      std::cout << "done" << std::endl;
       currentFrame->Release();
       currentFrame = nullptr;
     }
